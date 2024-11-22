@@ -12,6 +12,7 @@ import (
 
 	"github.com/Amannigam1820/student-api-go/internal/config"
 	"github.com/Amannigam1820/student-api-go/internal/http/handler/student"
+	"github.com/Amannigam1820/student-api-go/internal/storage/sqlite"
 )
 
 func main() {
@@ -19,10 +20,16 @@ func main() {
 	cfg := config.MustLoad()
 
 	// database setup
+	storage, err := sqlite.New(cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
+	slog.Info("Storage initialized", slog.String("env", cfg.Env), slog.String("version", "1.0.0"))
+
 	// setup router
 	router := http.NewServeMux() // router initialized
 
-	router.HandleFunc("POST /api/students", student.New())
+	router.HandleFunc("POST /api/students", student.New(storage))
 
 	// setup server
 
@@ -52,9 +59,9 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	err := server.Shutdown(ctx)
-	if err != nil {
-		slog.Error("failed to shutdown server", slog.String("error", err.Error()))
+	errs := server.Shutdown(ctx)
+	if errs != nil {
+		slog.Error("failed to shutdown server", slog.String("error", errs.Error()))
 	}
 	slog.Info("Server ShutDown SuccessFully..")
 

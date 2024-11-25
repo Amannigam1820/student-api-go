@@ -115,3 +115,35 @@ func DeleteStudent(storage storage.Storage) http.HandlerFunc {
 		response.WriteJson(w, http.StatusOK, res)
 	}
 }
+
+func UpdateStudent(storage storage.Storage) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := r.PathValue("id")
+		slog.Info("Updating a student", slog.String("id", id))
+
+		intId, err := strconv.ParseInt(id, 10, 64)
+		if err != nil {
+			response.WriteJson(w, http.StatusBadRequest, response.GeneralError(err))
+			return
+		}
+
+		var student types.Student
+		err = json.NewDecoder(r.Body).Decode(&student)
+		if err != nil {
+			response.WriteJson(w, http.StatusBadRequest, response.GeneralError(err))
+			return
+		}
+
+		message, updatedStudent, err := storage.UpdateStudent(intId, student.Name, student.Age, student.Email)
+		if err != nil {
+			// Internal server error if something goes wrong with database operation
+			response.WriteJson(w, http.StatusInternalServerError, response.GeneralError(err))
+			return
+		}
+
+		response.WriteJson(w, http.StatusOK, map[string]interface{}{
+			"message":         message,
+			"updated_student": updatedStudent,
+		})
+	}
+}

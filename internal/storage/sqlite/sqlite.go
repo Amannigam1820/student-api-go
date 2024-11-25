@@ -2,6 +2,7 @@ package sqlite
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/Amannigam1820/student-api-go/internal/config"
@@ -127,4 +128,45 @@ func (s *Sqlite) DeleteStudent(id int64) (string, error) {
 
 	}
 	return "Student deleted successfully", nil
+}
+
+func (s *Sqlite) UpdateStudent(id int64, name string, age int, email string) (string, types.Student, error) {
+	if id <= 0 {
+		return "", types.Student{}, fmt.Errorf("invalid ID: %d", id)
+	}
+
+	var existingStudent types.Student
+	query := "select id,name,age,email from students where id = ?"
+	err := s.Db.QueryRow(query, id).Scan(&existingStudent.Id, &existingStudent.Name, &existingStudent.Age, &existingStudent.Email)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return "Student not found", types.Student{}, nil
+		}
+		return "", types.Student{}, err
+	}
+
+	updateQuery := "UPDATE students SET name = ?, email = ?, age = ? WHERE id = ?"
+
+	res, err := s.Db.Exec(updateQuery, name, age, email)
+	if err != nil {
+		return "", types.Student{}, err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return "", types.Student{}, err
+	}
+	if rowsAffected == 0 {
+		return "No updates were made", existingStudent, nil
+	}
+
+	updatedStudent := types.Student{
+		Id:    int(id),
+		Name:  name,
+		Email: email,
+		Age:   age,
+	}
+
+	return "Student updated successfully", updatedStudent, nil
+
 }

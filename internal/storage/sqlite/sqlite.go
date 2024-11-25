@@ -77,7 +77,7 @@ func (s *Sqlite) GetStudentById(id int64) (types.Student, error) {
 }
 
 func (s *Sqlite) GetAllStudent() ([]types.Student, error) {
-	stmt, err := s.Db.Prepare("select * from students")
+	stmt, err := s.Db.Prepare("select id, name, age, email from students")
 	if err != nil {
 		return []types.Student{}, err
 	}
@@ -104,4 +104,27 @@ func (s *Sqlite) GetAllStudent() ([]types.Student, error) {
 	}
 	return students, nil
 
+}
+
+func (s *Sqlite) DeleteStudent(id int64) (string, error) {
+	stmt, err := s.Db.Prepare("DELETE FROM students WHERE id = ?")
+	if err != nil {
+		return "", err
+	}
+	defer stmt.Close()
+
+	res, err := stmt.Exec(id)
+	if err != nil {
+		return "", err
+	}
+	rowAffected, err := res.RowsAffected()
+	if err != nil {
+		return "", err
+	}
+
+	if rowAffected == 0 {
+		return "No student found with the given ID", nil
+
+	}
+	return "Student deleted successfully", nil
 }

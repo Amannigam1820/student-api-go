@@ -35,6 +35,7 @@ func main() {
 
 	router.HandleFunc("POST /api/users/register", user.RegisterUser(storage))
 	router.HandleFunc("POST /api/users/login", user.Login(storage))
+	router.HandleFunc("POST /api/users/logout", user.Logout)
 
 	// Students Routes
 

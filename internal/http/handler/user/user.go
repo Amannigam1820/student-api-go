@@ -101,3 +101,16 @@ func Login(storage storage.Storage) http.HandlerFunc {
 		})
 	}
 }
+
+func Logout(w http.ResponseWriter, r *http.Request) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     "token",
+		Value:    "",
+		Expires:  time.Now().Add(-time.Hour),
+		HttpOnly: true,
+		Secure:   false,
+		SameSite: http.SameSiteStrictMode,
+	})
+	slog.Info("User Logout SuccessFully")
+	response.WriteJson(w, http.StatusCreated, map[string]interface{}{"message": "User Logout Successfully"})
+}

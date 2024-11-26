@@ -32,7 +32,7 @@ func RegisterUser(storage storage.Storage) http.HandlerFunc {
 		}
 
 		slog.Info("User created SuccessFully", slog.String("UserId", fmt.Sprint(lastId)))
-		response.WriteJson(w, http.StatusCreated, map[string]int64{"id": lastId})
+		response.WriteJson(w, http.StatusCreated, map[string]interface{}{"id": lastId, "message": "User Register Successfully"})
 
 	}
 }

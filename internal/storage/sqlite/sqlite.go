@@ -196,3 +196,17 @@ func (s *Sqlite) RegisterUser(username, password string) (int64, error) {
 	}
 	return lastd, nil
 }
+func (s *Sqlite) GetUserByUsername(username string) (types.User, error) {
+	query := ("selet Id,username,password from  users where username = ?")
+	row := s.Db.QueryRow(query, username)
+	var user types.User
+	err := row.Scan(&user.Id, &user.Username, &user.Password)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return user, errors.New("user not found")
+		}
+		return user, err
+	}
+	return user, nil
+
+}

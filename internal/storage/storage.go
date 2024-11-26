@@ -12,4 +12,5 @@ type Storage interface {
 	// USer Operation
 
 	RegisterUser(username string, password string) (int64, error)
+	GetUserByUsername(username string) (types.User, error)
 }

@@ -47,7 +47,7 @@ func New(storage storage.Storage) http.HandlerFunc {
 			student.Age,
 		)
 
-		slog.Info("User created SuccessFully", slog.String("UserId", fmt.Sprint(lastId)))
+		slog.Info("Student created SuccessFully", slog.String("StudentId", fmt.Sprint(lastId)))
 
 		if err != nil {
 			response.WriteJson(w, http.StatusInternalServerError, err)

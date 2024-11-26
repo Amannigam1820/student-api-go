@@ -12,6 +12,7 @@ import (
 
 	"github.com/Amannigam1820/student-api-go/internal/config"
 	"github.com/Amannigam1820/student-api-go/internal/http/handler/student"
+	"github.com/Amannigam1820/student-api-go/internal/http/handler/user"
 	"github.com/Amannigam1820/student-api-go/internal/storage/sqlite"
 	"github.com/rs/cors"
 )
@@ -29,6 +30,12 @@ func main() {
 
 	// setup router
 	router := http.NewServeMux() // router initialized
+
+	// User Registration Routes
+
+	router.HandleFunc("POST /api/users", user.RegisterUser(storage))
+
+	// Students Routes
 
 	router.HandleFunc("POST /api/students", student.New(storage))
 	router.HandleFunc("GET /api/students/{id}", student.GetById(storage))

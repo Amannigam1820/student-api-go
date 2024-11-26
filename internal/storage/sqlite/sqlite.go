@@ -32,6 +32,15 @@ age INTEGER
 		return nil, err
 	}
 
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS users (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		username TEXT NOT NULL UNIQUE,
+		password TEXT NOT NULL
+	)`)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Sqlite{
 		Db: db,
 	}, nil
@@ -169,4 +178,21 @@ func (s *Sqlite) UpdateStudent(id int64, name string, age int, email string) (st
 
 	return "Student updated successfully", updatedStudent, nil
 
+}
+func (s *Sqlite) RegisterUser(username, password string) (int64, error) {
+	stmt, err := s.Db.Prepare("insert into users(username,password) values(?,?)")
+	if err != nil {
+		return 0, err
+	}
+	defer stmt.Close()
+
+	result, err := stmt.Exec(username, password)
+	if err != nil {
+		return 0, nil
+	}
+	lastd, err := result.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+	return lastd, nil
 }

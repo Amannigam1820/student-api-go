@@ -8,4 +8,8 @@ type Storage interface {
 	GetAllStudent() ([]types.Student, error)
 	DeleteStudent(id int64) (string, error)
 	UpdateStudent(id int64, name string, age int, email string) (string, types.Student, error)
+
+	// USer Operation
+
+	RegisterUser(username string, password string) (int64, error)
 }

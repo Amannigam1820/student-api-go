@@ -9,8 +9,12 @@ type Storage interface {
 	DeleteStudent(id int64) (string, error)
 	UpdateStudent(id int64, name string, age int, email string) (string, types.Student, error)
 
+	// interface for searching and sorting for student function
+	//GetStudentByFilter(name string, sortOrder string) ([]types.Student, error)
+
 	// USer Operation
 
 	RegisterUser(username string, password string) (int64, error)
 	GetUserByUsername(username string) (types.User, error)
+	GetLoggedInUserDetail(username string) (types.User, error)
 }

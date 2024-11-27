@@ -211,3 +211,56 @@ func (s *Sqlite) GetUserByUsername(username string) (types.User, error) {
 	return user, nil
 
 }
+
+func (s *Sqlite) GetLoggedInUserDetail(username string) (types.User, error) {
+	var user types.User
+	query := "SELECT id, username, email FROM users WHERE username = ?"
+	err := s.Db.QueryRow(query, username).Scan(&user.Id, &user.Username, &user.Password)
+	if err != nil {
+		return types.User{}, err
+	}
+	return user, nil
+}
+
+// function to apply searching and sorting feature in backend api
+
+// func (s *Sqlite) GetStudentByFilter(name string, sortOrder string) ([]types.Student, error) {
+// 	query := "SELECT id, name, age FROM students WHERE 1=1"
+// 	var args []interface{}
+
+// 	// Apply name filter if provided
+// 	if name != "" {
+// 		query += " AND name LIKE ?"
+// 		args = append(args, "%"+name+"%")
+// 	}
+
+// 	// Validate and apply sorting order
+// 	if sortOrder != "asc" && sortOrder != "desc" {
+// 		sortOrder = "asc" // Default to ascending if invalid or not provided
+// 	}
+// 	query += fmt.Sprintf(" ORDER BY age %s", sortOrder)
+
+// 	// Execute query
+// 	rows, err := s.Db.Query(query, args...)
+// 	if err != nil {
+// 		return nil, fmt.Errorf("query execution failed: %w", err)
+// 	}
+// 	defer rows.Close()
+
+// 	// Parse query results
+// 	var students []types.Student
+// 	for rows.Next() {
+// 		var student types.Student
+// 		if err := rows.Scan(&student.Id, &student.Name, &student.Age); err != nil {
+// 			return nil, fmt.Errorf("failed to scan row: %w", err)
+// 		}
+// 		students = append(students, student)
+// 	}
+
+// 	// Check for errors encountered during iteration
+// 	if err = rows.Err(); err != nil {
+// 		return nil, fmt.Errorf("row iteration error: %w", err)
+// 	}
+
+// 	return students, nil
+// }

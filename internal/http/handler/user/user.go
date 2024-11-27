@@ -61,7 +61,7 @@ func Login(storage storage.Storage) http.HandlerFunc {
 		user, err := storage.GetUserByUsername(credential.Username)
 		if err != nil {
 			slog.Error(err.Error())
-			response.WriteJson(w, http.StatusBadRequest, response.GeneralError(fmt.Errorf("invalid request")))
+			response.WriteJson(w, http.StatusBadRequest, response.GeneralError(fmt.Errorf("invalid username and password")))
 			return
 		}
 
@@ -92,7 +92,14 @@ func Login(storage storage.Storage) http.HandlerFunc {
 			Name:    "token",
 			Value:   tokenString,
 			Expires: expirationTime,
+
+			Path:     "/",   // Cookie should be accessible across the whole site
+			HttpOnly: true,  // Important for security, can't be accessed by JS
+			Secure:   false, // Set to true if using HTTPS
+			//SameSite: http.SameSiteStrictMode, // Set this to true if you're using HTTPS
+
 		})
+		fmt.Println("Cookie set with value: ", tokenString)
 		slog.Info("User logged in successfully")
 		response.WriteJson(w, http.StatusOK, map[string]interface{}{
 
@@ -107,10 +114,39 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 		Name:     "token",
 		Value:    "",
 		Expires:  time.Now().Add(-time.Hour),
+		Path:     "/",
 		HttpOnly: true,
 		Secure:   false,
-		SameSite: http.SameSiteStrictMode,
+		//SameSite: http.SameSiteStrictMode,
 	})
 	slog.Info("User Logout SuccessFully")
 	response.WriteJson(w, http.StatusCreated, map[string]interface{}{"message": "User Logout Successfully"})
+}
+
+func GetLoggedInUser(storage storage.Storage) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Retrieve username from context
+		username, ok := r.Context().Value("username").(string)
+		if !ok {
+			response.WriteJson(w, http.StatusUnauthorized, response.GeneralError(fmt.Errorf("unauthorized")))
+
+			return
+		}
+
+		// Fetch user details from the database
+		user, err := storage.GetUserByUsername(username) // Ensure this function is implemented in the storage
+		if err != nil {
+
+			response.WriteJson(w, http.StatusNotFound, response.GeneralError(fmt.Errorf("User not found")))
+			return
+		}
+
+		// Return user details (excluding sensitive information like password)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"id":       user.Id,
+			"username": user.Username,
+			"password": user.Password,
+		})
+	}
 }

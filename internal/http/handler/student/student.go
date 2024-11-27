@@ -147,3 +147,27 @@ func UpdateStudent(storage storage.Storage) http.HandlerFunc {
 		})
 	}
 }
+
+// Handler function of searchng and sorting of student
+
+// func GetStudentByFilter(storage storage.Storage) http.HandlerFunc {
+// 	return func(w http.ResponseWriter, r *http.Request) {
+// 		// Get query parameters
+// 		name := r.URL.Query().Get("name")
+// 		sortOrder := r.URL.Query().Get("sortOrder")
+
+// 		// Fetch students from database
+// 		students, err := storage.GetStudentByFilter(name, sortOrder)
+// 		if err != nil {
+// 			http.Error(w, fmt.Sprintf("Failed to fetch students: %v", err), http.StatusInternalServerError)
+// 			return
+// 		}
+
+// 		// Respond with JSON
+// 		w.Header().Set("Content-Type", "application/json")
+// 		if err := json.NewEncoder(w).Encode(students); err != nil {
+// 			http.Error(w, fmt.Sprintf("Failed to encode response: %v", err), http.StatusInternalServerError)
+// 			return
+// 		}
+// 	}
+// }
